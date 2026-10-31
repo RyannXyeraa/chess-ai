@@ -1,0 +1,197 @@
+
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1e1e2e">
+  <title>Chess Practice</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" id="brandHome">
+        <span class="brand-icon">♞</span>
+        <span>chess<span class="brand-accent">.practice</span></span>
+      </a>
+      <button class="icon-button" id="openOptions" aria-label="Options" title="Options">⚙</button>
+    </header>
+
+    <main>
+      <section id="homeScreen" class="screen home-screen">
+        <div class="hero">
+          <div class="eyebrow"><span class="status-dot"></span> LOCAL CHESS ENGINE</div>
+          <h1>Think clearly.<br><span>Play better.</span></h1>
+          <p class="muted hero-copy">
+            Permainan catur lokal dengan papan interaktif dan engine Stockfish.
+          </p>
+          <div class="hero-actions">
+            <button class="primary-button" id="playButton">Mulai bermain <span>↗</span></button>
+            <button class="secondary-button" id="homeOptions">Options</button>
+          </div>
+          <div class="feature-row">
+            <div class="feature"><span>♟</span><div><b>Legal moves</b><small>Aturan catur lengkap</small></div></div>
+            <div class="feature"><span>⌁</span><div><b>Stockfish</b><small>Engine lokal</small></div></div>
+            <div class="feature"><span>◷</span><div><b>Undo & reset</b><small>Latihan bebas</small></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="screen game-screen hidden">
+        <div class="game-heading">
+          <button class="back-button" id="backHome">← Menu</button>
+          <div class="game-title">
+            <h2>Casual game</h2>
+            <p class="muted" id="gameSubtitle">Kamu vs Stockfish</p>
+          </div>
+          <button class="icon-button" id="flipButton" title="Balik papan" aria-label="Balik papan">⇅</button>
+        </div>
+
+        <div class="game-layout">
+          <section class="board-column">
+            <div class="player-strip" id="opponentStrip">
+              <div class="avatar bot-avatar">♞</div>
+              <div class="player-info"><b>Stockfish</b><small id="botCaption">Engine lawan</small></div>
+              <span class="turn-indicator" id="botTurnIndicator"></span>
+            </div>
+
+            <div class="board-frame">
+              <div id="board" class="board" role="grid" aria-label="Papan catur"></div>
+            </div>
+
+            <div class="player-strip" id="humanStrip">
+              <div class="avatar human-avatar">♟</div>
+              <div class="player-info"><b>Kamu</b><small id="humanCaption">Pemain</small></div>
+              <span class="turn-indicator" id="humanTurnIndicator"></span>
+            </div>
+          </section>
+
+          <aside class="side-panel">
+            <div class="panel-card status-card">
+              <div class="section-label">GAME STATUS</div>
+              <div class="status-line">
+                <span class="status-dot" id="engineDot"></span>
+                <span id="statusText">Menyiapkan engine…</span>
+              </div>
+              <div class="engine-note" id="engineNote">Menunggu Stockfish</div>
+            </div>
+
+            <div class="panel-card hint-card hidden" id="hintCard">
+              <div class="section-heading">
+                <span class="section-label">PETUNJUK</span>
+                <span class="hint-tools">
+                  <span class="move-count" id="hintEval"></span>
+                  <button class="hint-dismiss" id="hintDismiss" aria-label="Tutup petunjuk" title="Tutup">✕</button>
+                </span>
+              </div>
+              <div class="hint-best" id="hintBest"></div>
+              <p class="hint-summary" id="hintSummary"></p>
+              <div class="hint-line" id="hintLine"></div>
+            </div>
+
+            <div class="panel-card">
+              <div class="section-heading">
+                <span class="section-label">MOVE HISTORY</span>
+                <span class="move-count" id="moveCount">0 ply</span>
+              </div>
+              <div id="moveHistory" class="move-history">
+                <span class="muted">Langkah akan muncul di sini.</span>
+              </div>
+            </div>
+
+            <div class="panel-card controls-card">
+              <button class="control-button" id="hintButton">✦ <span>Petunjuk</span></button>
+              <button class="control-button" id="undoButton">↶ <span>Undo turn</span></button>
+              <button class="control-button" id="resetButton">⟳ <span>Reset game</span></button>
+              <button class="control-button" id="optionsButton">⚙ <span>Game options</span></button>
+            </div>
+            <p class="side-hint">Pilih bidak, lalu pilih kotak tujuan yang disorot.</p>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>CHESS PRACTICE</span>
+      <span>Built for focused play</span>
+    </footer>
+  </div>
+
+  <div id="optionsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="optionsTitle">
+    <div class="modal-card">
+      <div class="modal-heading">
+        <div><div class="eyebrow">PERSONALIZE</div><h2 id="optionsTitle">Options</h2></div>
+        <button class="icon-button" id="closeOptions" aria-label="Tutup">✕</button>
+      </div>
+
+      <label class="field-label" for="humanColor">Warna kamu</label>
+      <select id="humanColor" class="field">
+        <option value="w">Putih — jalan pertama</option>
+        <option value="b">Hitam — bot jalan pertama</option>
+      </select>
+
+      <div class="strength-head">
+        <label class="field-label" for="engineDepth">Kekuatan engine lawan</label>
+        <span class="strength-tier" id="engineTier"></span>
+      </div>
+      <div class="strength-row">
+        <input type="range" class="strength-range" id="engineDepthRange" min="1" max="20" step="1" value="14" aria-label="Kekuatan engine lawan (slider)">
+        <input type="number" class="field strength-number" id="engineDepth" min="1" max="20" step="1" value="14" inputmode="numeric">
+      </div>
+      <div class="strength-scale"><span>1 · lemah</span><span>20 · maksimal</span></div>
+      <p class="field-help">Makin tinggi, Stockfish makin kuat dan makin sulit dikalahkan, tapi berpikir lebih lama. Geser slider atau ketik angka 1–20.</p>
+      <div class="strength-head">
+        <label class="field-label" for="hintDepth">Kekuatan engine petunjuk</label>
+        <span class="strength-tier" id="hintTier"></span>
+      </div>
+      <div class="strength-row">
+        <input type="range" class="strength-range" id="hintDepthRange" min="1" max="20" step="1" value="14" aria-label="Kekuatan engine petunjuk (slider)">
+        <input type="number" class="field strength-number" id="hintDepth" min="1" max="20" step="1" value="14" inputmode="numeric">
+      </div>
+      <div class="strength-scale"><span>1 · lemah</span><span>20 · maksimal</span></div>
+      <p class="field-help">Engine terpisah untuk tombol Petunjuk. Makin tinggi, saran langkah makin akurat dan jalurnya makin panjang, tapi analisisnya lebih lama.</p>
+
+      <label class="field-label" for="boardOrientation">Orientasi awal papan</label>
+      <select id="boardOrientation" class="field">
+        <option value="player">Warna saya di bawah</option>
+        <option value="white">Putih di bawah</option>
+        <option value="black">Hitam di bawah</option>
+      </select>
+
+      <button class="primary-button full-button" id="saveOptions">Simpan pengaturan</button>
+    </div>
+  </div>
+
+  <div id="promotionModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card promotion-card">
+      <h2>Promosi pion</h2>
+      <p class="muted">Pilih bidak yang kamu inginkan.</p>
+      <div class="promotion-options" id="promotionOptions"></div>
+    </div>
+  </div>
+
+  <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="modal-card result-card" id="resultCard" data-outcome="win">
+      <div class="result-badge"><span id="resultIcon">♛</span></div>
+      <div class="eyebrow" id="resultEyebrow">SKAKMAT</div>
+      <h2 id="resultTitle">Kamu menang!</h2>
+      <p class="muted result-detail" id="resultDetail"></p>
+      <div class="result-stats">
+        <div><b id="resultMoves">0</b><small>Langkah</small></div>
+        <div><b id="resultSide">Putih</b><small>Warna kamu</small></div>
+        <div><b id="resultDepth">14</b><small>Depth</small></div>
+      </div>
+      <button class="primary-button full-button" id="resultPlayAgain">Main lagi</button>
+      <button class="secondary-button full-button result-secondary" id="resultViewBoard">Lihat papan</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+</body>
+</html>
+
